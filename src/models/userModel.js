@@ -1,9 +1,28 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema( {
-    firstName: String,
-    lastName: String,
-    mobile: {
+const bookSchema = new mongoose.Schema( {    // new object is created because of new
+
+    bookName: {
+        type: String,
+        required: true
+    },
+    authorName: {
+        type: String,
+        required: true,
+    },
+
+    category: {
+        type: String,
+        required: true,
+    },
+    year:{
+        type: Number,
+        required: true
+    }
+
+
+
+  /*   mobile: {
         type: String,
         unique: true,
         required: true
@@ -13,7 +32,8 @@ const userSchema = new mongoose.Schema( {
         type: String,
         enum: ["male", "female", "LGBTQ"] //"falana" will give an error
     },
-    age: Number,
+    age: Number, */
+
     // isIndian: Boolean,
     // parentsInfo: {
     //     motherName: String,
@@ -21,9 +41,13 @@ const userSchema = new mongoose.Schema( {
     //     siblingName: String
     // },
     // cars: [ String  ]
+    
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', userSchema) //users
+
+const bookApi =  mongoose.model('Book', bookSchema) //users
+
+module.exports = bookApi
 
 
 
