@@ -10,9 +10,9 @@ const createBook= async function (req, res) {
 
 const getBooksData= async function (req, res) {
 
-    // let allBooks= await BookModel.find( ).count() // COUNT
+  //  let allBooks= await BookModel.find().count() // COUNT
 
-    // let allBooks= await BookModel.find( { authorName : "Chetan Bhagat" , isPublished: true  } ) // AND
+   //  let allBooks= await BookModel.find( { authorName : "Chetan Bhagat" , isPublished: true  } ) // AND
     
     // let allBooks= await BookModel.find( { 
     //     $or: [ {authorName : "Chetan Bhagat" } , { isPublished: true } , {  "year": 1991 }]
@@ -24,7 +24,7 @@ const getBooksData= async function (req, res) {
     // let page= req.query.page
     // let allBooks= await BookModel.find().skip(3 * (page-1)).limit(3)
 
-    // let allBooks= await BookModel.find().sort({ sales: -1 }).skip(3 * (page-1)).limit(3).select({ bookName: 1, authorName: 1, _id: 0} )
+     //let allBooks= await BookModel.find().sort({ sales: -1 }).skip(3 * (page-1)).limit(3).select({ bookName: 1, authorName: 1, _id: 0} )
 
 
     // let allBooks= await BookModel.find({ sales: { $eq:  137 }  }) 
