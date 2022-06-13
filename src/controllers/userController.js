@@ -1,22 +1,26 @@
-const UserModel= require("../models/userModel")
+//const OrderModel = require("../models/orderDocumentModel.js")
+const UserModel= require("../models/userDocumentModel.js")
 
 
 
 
-const basicCode= async function(req, res, next) {
-    let tokenDataInHeaders= req.headers.token
-    console.log(tokenDataInHeaders)
-
-    console.log( "HEADER DATA ABOVE")
-    console.log( "hey man, congrats you have reached the Handler")
-    //res.send({ msg: "This is coming from controller (handler)"})
-    next()
-    }
-
-const createUser= async function (req, res) {
+const createUser = async function(req, res){
+    let data = req.body
+    const userData = await UserModel.create(data)
+    res.send({msg: userData})
+   
     
-    let data= req.body
-    let tokenDataInHeaders= req.headers.token
+}
+
+
+
+
+
+
+
+    
+    
+   /*  let tokenDataInHeaders= req.headers.token
     //Get all headers from request
     console.log("Request headers before modificatiom",req.headers)
     //Get a header from request
@@ -35,13 +39,8 @@ const createUser= async function (req, res) {
     //Set a header in response
     res.header('year','2022')
     res.send({msg: "Hi"})
-}
+ */
 
-const getUsersData= async function (req, res) {
-    let allUsers= await UserModel.find()
-    res.send({msg: allUsers})
-}
 
 module.exports.createUser= createUser
-module.exports.getUsersData= getUsersData
-module.exports.basicCode= basicCode
+//module.exports.getUsersData= getUsersData
