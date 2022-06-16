@@ -26,21 +26,6 @@ const userLogin = async function (req, res) {
 };
 
 const getUserDetails = async function (req, res) {
-  let token = req.headers["x-Auth-token"];
-  if (!token) {
-
-    token = req.headers["x-auth-token"];
-  }
-  if (!token) {
-
-    return res.send({ status: false, Msg: "Token must be present" })
-  }
-  // If a token is present then decode the token with verify function
-
-  let decodedToken = jwt.verify(token, "functionup-radon");
-  if (!decodedToken) {
-    return res.send({ status: false, Msg: "Token is Invalid" })
-  }
   let userId = req.params.userId
   let userDetails = await UserModel.findById(userId)
   if (!userDetails) {
@@ -54,10 +39,6 @@ const getUserDetails = async function (req, res) {
 
 const updateUser = async function (req, res) {
   let userId = req.params.userId
-  let user = await UserModel.findById(userId)
-  if (!user) {
-   return res.send({ Msg: "No such user exists" })
-  }
   let userData = req.body
   let updateUser = await UserModel.findOneAndUpdate({ _id: userId }, userData, {new: true})
   res.send({ status: updateUser, data: updateUser })
@@ -66,10 +47,6 @@ const updateUser = async function (req, res) {
 
 const deleteUser = async function (req, res) {
   let userId = req.params.userId
-  let user = await UserModel.findById(userId)
-  if (!user) {
-   return res.send({ Msg: "No such user exists" })
-  }
   let userData = req.body
   let deleteUser = await UserModel.findOneAndUpdate({ _id: userId }, userData, {new: true})
   res.send({ status: deleteUser, data: deleteUser })
@@ -78,20 +55,8 @@ const deleteUser = async function (req, res) {
 
 const postMessage = async function (req, res) {
     let message = req.body.message
-    
-    let token = req.headers["x-auth-token"]
-    if(!token) return res.send({status: false, msg: "token must be present in the request header"})
-    let decodedToken = jwt.verify(token, 'functionup-radon')
-
-    if(!decodedToken) return res.send({status: false, msg:"token is not valid"})
-    
-    let userToBeModified = req.params.userId
-    let userLoggedIn = decodedToken.userId
-
-    if(userToBeModified != userLoggedIn) return res.send({status: false, msg: 'User logged is not allowed to modify the requested users data'})
+   
     let user = await UserModel.findById(req.params.userId)
-    if(!user) return res.send({status: false, msg: 'No such user exists'})
-    
     let updatedPosts = user.posts
     updatedPosts.push(message)
     let updatedUser = await UserModel.findOneAndUpdate({_id: user._id},{posts: updatedPosts}, {new: true})
