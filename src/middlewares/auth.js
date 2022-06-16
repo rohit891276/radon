@@ -30,7 +30,7 @@ let authenticate = async function (req, res, next) {
   next()
 
   }catch(err){
-    res.status(500).send({Msg: "Error", error: err.message})
+    res.status(500).send({Msg: "SERVER ERROR", error: err.message})
   }
 
 

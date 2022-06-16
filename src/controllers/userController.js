@@ -24,7 +24,7 @@ const userLogin = async function (req, res) {
   userPassword = req.body.password
   let userDetails = await UserModel.findOne({ emaliId: userName, password: userPassword })
   if (!userDetails) {
-    res.status(400).send({ status: false, Msg: "userName or password is invalid" })
+    res.status(400).send({ status: false, Msg: "UserName or Password is invalid" })
   }
   let token = jwt.sign(
     {
@@ -33,10 +33,10 @@ const userLogin = async function (req, res) {
       organisation: "FunctionUp,"
     }, "functionup-radon");
   res.setHeader("x-auth-token", token);
-  res.status(201).send({ status: true, token: token })
+  res.status(200).send({ status: true, token: token })
   }
   catch(err){
-    res.status(500).send({Msg: "Error", error: err.message})
+    res.status(500).send({Msg: "SERVER ERROR", error: err.message})
   }
 };
 
@@ -47,11 +47,11 @@ const getUserDetails = async function (req, res) {
   if (!userDetails) {
     return res.status(400).send({ status: false, Msg: "No such user exists" })
   }
-  res.status(201).send({ status: true, data: userDetails })
+  res.status(200).send({ status: true, data: userDetails })
 }
 catch(err){
   console.log(err)
-  res.status(500).send({Msg: "Error", error: err.message})
+  res.status(500).send({Msg: "SERVER ERROR", Error: err.message})
 }
 
 };
@@ -62,10 +62,10 @@ const updateUser = async function (req, res) {
   let userId = req.params.userId
   let userData = req.body
   let updateUser = await UserModel.findOneAndUpdate({ _id: userId }, userData, { new: true })
-  res.status(201).send({ status: true, data: updateUser })
+  res.status(200).send({ status: true, data: updateUser })
   }catch(err){
     console.log(err)
-    res.status(500).send({Msg: "Error", Msg: error.message})
+    res.status(500).send({Msg: "SERVER ERROR", Error: err.message})
   }
 };
 
@@ -75,10 +75,10 @@ const deleteUser = async function (req, res) {
   let userId = req.params.userId
   let userData = req.body
   let deleteUser = await UserModel.findOneAndUpdate({ _id: userId }, userData, { new: true })
-  res.status(201).send({ status: true, data: deleteUser })
+  res.status(200).send({ status: true, data: deleteUser })
   }catch(err){
     console.log(err)
-    res.status(500).send({Msg: "Error", Msg: error.message})
+    res.status(500).send({Msg: "SERVER ERROR", Error: err.message})
   }
 };
 
@@ -86,16 +86,15 @@ const deleteUser = async function (req, res) {
 const postMessage = async function (req, res) {
   try{
   let message = req.body.message
-
   let user = await UserModel.findById(req.params.userId)
   let updatedPosts = user.posts
   updatedPosts.push(message)
   let updatedUser = await UserModel.findOneAndUpdate({ _id: user._id }, { posts: updatedPosts }, { new: true })
 
-  return res.status(201).send({ status: true, data: updatedUser })
+  return res.status(200).send({ status: true, data: updatedUser })
   }catch(err){
     console.log(err)
-    res.status(500).send({Msg: "Error", Msg: error.message})
+    res.status(500).send({Msg: "SERVER ERROR", Error: err.message})
   }
 }
 
