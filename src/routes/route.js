@@ -1,27 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const AuthorController = require("../controllers/authorController")
-const BlogController = require("../controllers/blogController")
+const AuthorController = require('../controllers/authorController');
+const BlogController = require('../controllers/blogController');
+const middleware = require('../middleware/auth');
 
+router.post('/authors', AuthorController.createAuthor);
 
+router.post('/blogs', middleware.authenticate, BlogController.createBlog);
 
+router.get('/blogs', middleware.authenticate, BlogController.getAllBlogs);
 
-router.get("/test-me", function (req, res) {
-    res.send("My first ever api!")
-})
+router.put('/blogs/:blogId', middleware.authorise, middleware.authenticate, BlogController.updateBlog);
 
-router.post("/createAuthor", AuthorController.createAuthor)
+router.delete('/blogs/:blogId', middleware.authorise, middleware.authenticate, BlogController.deleteByParams);
 
-router.post("/createBlog", BlogController.createBlog)
+router.delete('/blogs', middleware.authorise, middleware.authenticate, BlogController.deletedByQuery);
 
-router.get("/getAllBlogs", BlogController.getAllBlogs)
-
-router.put("/blog/:blogId", BlogController.updateBlog)
-
-router.delete("/blogs/:blogId", BlogController.deleteByParams)
-
-router.delete("/blogs", BlogController.deletedByQuery)
-
-
+router.post('/login', AuthorController.loginAuthor);
 
 module.exports = router;

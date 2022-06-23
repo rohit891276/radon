@@ -23,6 +23,10 @@ mongoose.connect("mongodb+srv://harsh-developer:aA12345678@cluster0.lxbes.mongod
 
 app.use('/', route);
 
+app.all('/**', (req, res) => {
+    res.status(404).send({ status: false, message: "Page Not Found!" })
+})
+
 
 app.listen(process.env.PORT || 3000, function () {
     console.log('Express app running on port ' + (process.env.PORT || 3000))
