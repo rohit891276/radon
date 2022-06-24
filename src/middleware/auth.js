@@ -24,17 +24,15 @@ const authorise = async function (req, res, next) {
         let blogId = req.params.blogId;
         let decodedToken = jwt.verify(token, 'group-21');
         let authorId = decodedToken.authorId;
-        let findBlog = await BlogModel.findOne({ authorId: authorId, _Id: blogId });
+        let findBlog = await BlogModel.findOne({ authorId: authorId, _id: blogId });
         if (!findBlog)
-            return res.status(403).send({
-                status: false,
-                msg: 'Unauthorized User',
-            });
+            return res.status(403).send({status: false,msg: 'Unauthorized User'});
         next();
     } catch (err) {
         res.status(500).send({ Status: 'SERVER ERROR', Msg: err.message });
     }
 };
+
 
 module.exports.authenticate = authenticate;
 module.exports.authorise = authorise;

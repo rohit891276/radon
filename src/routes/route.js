@@ -10,11 +10,11 @@ router.post('/blogs', middleware.authenticate, BlogController.createBlog);
 
 router.get('/blogs', middleware.authenticate, BlogController.getAllBlogs);
 
-router.put('/blogs/:blogId', middleware.authorise, middleware.authenticate, BlogController.updateBlog);
+router.put('/blogs/:blogId', middleware.authenticate, middleware.authorise, BlogController.updateBlog);
 
-router.delete('/blogs/:blogId', middleware.authorise, middleware.authenticate, BlogController.deleteByParams);
+router.delete('/blogs/:blogId', middleware.authenticate, middleware.authorise, BlogController.deleteByParams);
 
-router.delete('/blogs', middleware.authorise, middleware.authenticate, BlogController.deletedByQuery);
+router.delete('/blogs', middleware.authenticate, middleware.authorise, BlogController.deletedByQuery);
 
 router.post('/login', AuthorController.loginAuthor);
 

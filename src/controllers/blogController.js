@@ -15,8 +15,6 @@ const createBlog = async function (req, res) {
         if (decodedToken.authorId != data.authorId)
             return res.status(403).send({ status: false, msg: 'This author is not allowed to post this blog.' });
         const createdBlog = await BlogModel.create(data);
-        if (!createdBlog)
-            return res.status(500).send({ status: false, msg: 'data required' });
         res.status(201).send({ status: true, msg: createdBlog });
     } catch (err) {
         res.status(500).send({
