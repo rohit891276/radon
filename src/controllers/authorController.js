@@ -4,33 +4,49 @@ const jwt = require('jsonwebtoken');
 const createAuthor = async function (req, res) {
     try {
         const authorData = req.body;
-        if (Object.keys(authorData).length != 0) {
-            let nameRegex = /^[A-Za-z\s]{1,}[\.]{0,1}[A-Za-z\s]{0,}$/
-            let mailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-            let passRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/
 
-            if (!(nameRegex.test(authorData.fname)) || !(nameRegex.test(authorData.lname))) {
-                return res.status(405).send({ msg: "Please enter valid characters only in fname and lname" })
-            }
+        if (Object.keys(authorData).length == 0)
+            return res.status(400).send({ status: false, msg: 'enter body' });
+        let nameRegex = /^[A-Za-z\s]{1,}[\.]{0,1}[A-Za-z\s]{0,}$/
+        let mailRegex = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/
+        let passRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/
 
-            if (!(mailRegex.test(authorData.email))) {
-                return res.status(405).send({ msg: "Please enter valid mailId" })
-            }
+        if (!authorData.fname)
+            return res
+                .status(400)
+                .send({ status: false, msg: 'first name required' });
 
-            if (!(passRegex.test(authorData.password))) {
-                return res.status(405).send({ msg: "Please enter a password which contains min 8 letters, at least a symbol, upper and lower case letters and a number" })
-            }
+        if (!authorData.lname)
+            return res.status(400).send({ status: false, msg: 'last name required' });
 
-            if (authorData.title != ("Mr" || "Mrs" || "Miss")) { return res.status(400).send({ msg: "Please select title from (Mr, Mrs, Miss) these options only." }) }
-
-            const savedData = await AuthorModel.create(authorData);
-            res.status(201).send({ Status: true, Msg: savedData });
-        } else {
-            console.log(Object.keys(authorData))
-            res.status(400).send({ Status: false, Msg: 'BAD REQUEST' });
+        if (!(mailRegex.test(authorData.email))) {
+            return res.status(400).send({ msg: "Please enter valid mailId" })
         }
+
+        if (!authorData.title)
+            return res.status(400).send({ status: false, msg: 'title required' });
+        if (authorData.title != "Mr" && authorData.title != "Mrs" && authorData.title != "Miss")
+            return res.status(400).send({ status: false, msg: 'enter valid title' });
+
+        if (!(nameRegex.test(authorData.fname)) || !(nameRegex.test(authorData.lname))) {
+            return res.status(400).send({ msg: "Please enter valid characters only in fname and lname" })
+        }
+
+        if (!authorData.email)
+            return res.status(400).send({ status: false, msg: 'email required' });
+
+        if (!authorData.password)
+            return res.status(400).send({ status: false, msg: 'password required' });
+
+        if (!(passRegex.test(authorData.password)))
+            return res.status(400).send({ msg: "Please enter a password which contains min 8 letters, at least a symbol, upper and lower case letters and a number" })
+
+
+        const savedData = await AuthorModel.create(authorData);
+
+        res.status(201).send({ status: true, msg: savedData });
     } catch (err) {
-        res.status(500).send({ Status: 'SERVER ERROR', Msg: err.message });
+        res.status(500).send({ status: false, msg: err.message });
     }
 };
 

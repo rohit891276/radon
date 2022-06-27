@@ -5,16 +5,33 @@ const jwt = require('jsonwebtoken');
 const createBlog = async function (req, res) {
     try {
         let data = req.body;
+
         if (!data.authorId)
-            return res.status(400).send({ status: false, msg: 'enter author id' });
+            return res.status(400).send({ status: false, msg: 'author id required' });
+
+        if (!data.title)
+            return res.status(400).send({ status: false, msg: 'title required' });
+
+        if (!data.body)
+            return res.status(400).send({ status: false, msg: 'body required' });
+
+        if (!data.category)
+            return res.status(400).send({ status: false, msg: 'category required' });
+
         let check = await AuthorModel.findById(data.authorId);
         if (!check)
-            return res.status(400).send({ status: false, msg: 'enter valid author id' });
+            return res
+                .status(400)
+                .send({ status: false, msg: 'enter valid author id' });
+
         let token = req.headers['x-api-key'];
+
         let decodedToken = jwt.verify(token, 'group-21');
         if (decodedToken.authorId != data.authorId)
-            return res.status(403).send({ status: false, msg: 'This author is not allowed to post this blog.' });
+            return res.status(403).send({ status: false, msg: 'Unauthorized' });
+
         const createdBlog = await BlogModel.create(data);
+
         res.status(201).send({ status: true, msg: createdBlog });
     } catch (err) {
         res.status(500).send({
@@ -27,26 +44,36 @@ const createBlog = async function (req, res) {
 const getAllBlogs = async function (req, res) {
     try {
         let data = req.query;
+
         let filter = { isDeleted: false, isPublished: true };
-        if (Object.keys(data).length > 0) {
+
+        if (Object.keys(data).length == 0) {
+            let allBlogs = await BlogModel.find();
+            res.status(200).send(allBlogs);
+        } else {
             if (data.tags) {
                 data.tags = { $in: data.tags.split(',') };
             }
+
             if (data.subcategory) {
                 data.subcategory = { $in: data.subcategory.split(',') };
             }
+
             filter['$or'] = [
                 { authorId: data.authorId },
                 { category: data.category },
                 { subcategory: data.subcategory },
                 { tags: data.tags },
             ];
+
+            let allBlogs = await BlogModel.find(filter);
+
+            if (allBlogs.length == 0) {
+                return res.status(404).send({ status: false, msg: 'blogs not found' });
+            }
+
+            res.status(200).send(allBlogs);
         }
-        let allBlogs = await BlogModel.find(filter);
-        if (allBlogs.length == 0) {
-            return res.status(404).send({ msg: 'blogs not found' });
-        }
-        res.status(200).send(allBlogs);
     } catch (err) {
         res.status(500).send({ msg: 'Error', error: err.message });
     }
@@ -102,10 +129,18 @@ const deleteByParams = async function (req, res) {
 const deletedByQuery = async function (req, res) {
     try {
         let data = req.query;
-        let queryData = { isDeleted: false };
-        if (Object.keys(data).length == 0) {
+
+        if (Object.keys(data).length == 0)
             return res.status(400).send({ status: false, msg: 'no query params' });
-        }
+
+        if (!data.authorId)
+            return res.status(400).send({ status: false, msg: 'author id required' });
+
+        let token = req.headers['x-api-key'];
+        let decodedToken = jwt.verify(token, 'group-21');
+        if (decodedToken.authorId != data.authorId)
+            return res.status(403).send({ status: false, msg: 'Unauthorized' });
+        let queryData = { isDeleted: false };
         if (data.tags) {
             data.tags = { $in: data.tags.split(',') };
         }
@@ -119,15 +154,18 @@ const deletedByQuery = async function (req, res) {
             { tags: data.tags },
             { isPublished: data.isPublished },
         ];
+
         const check = await BlogModel.find(queryData).count();
         if (check == 0)
             return res.status(404).send({ status: false, msg: 'data not found' });
+
         const deletedData = await BlogModel.updateMany(queryData, {
             $set: {
                 isDeleted: true,
                 deletedAt: Date(),
             },
         });
+
         res.status(200).send({
             status: true,
             data: 'successfully deleted',
