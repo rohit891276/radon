@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const AuthorController = require('../controllers/authorController');
 const BlogController = require('../controllers/blogController');
 const middleware = require('../middleware/auth');
@@ -12,21 +13,20 @@ router.get('/blogs', middleware.authenticate, BlogController.getAllBlogs);
 
 router.put(
   '/blogs/:blogId',
-  middleware.authorise,
   middleware.authenticate,
+  middleware.authorise,
   BlogController.updateBlog
 );
 
 router.delete(
   '/blogs/:blogId',
-  middleware.authorise,
   middleware.authenticate,
+  middleware.authorise,
   BlogController.deleteByParams
 );
 
 router.delete(
   '/blogs',
-  middleware.authorise,
   middleware.authenticate,
   BlogController.deletedByQuery
 );

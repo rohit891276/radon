@@ -1,37 +1,68 @@
 const AuthorModel = require('../models/authorModel.js');
+
 const jwt = require('jsonwebtoken');
+
+//------------------------------------------------------------------------------------------//
 
 const createAuthor = async function (req, res) {
   try {
     const authorData = req.body;
+    const email = await AuthorModel.findOne({ email: authorData.email });
+
     if (Object.keys(authorData).length == 0)
       return res.status(400).send({ status: false, msg: 'enter body' });
+
     if (!authorData.fname)
-      return res.status(400).send({ status: false, msg: 'first name required' });
+      return res
+        .status(400)
+        .send({ status: false, msg: 'first name required' });
+
     if (!authorData.lname)
       return res.status(400).send({ status: false, msg: 'last name required' });
+
     if (!authorData.title)
       return res.status(400).send({ status: false, msg: 'title required' });
-    if (authorData.title != ('Mr' || 'Mrs' || 'Miss'))
+    if (
+      authorData.title != 'Mr' &&
+      authorData.title != 'Mrs' &&
+      authorData.title != 'Miss'
+    )
       return res.status(400).send({ status: false, msg: 'enter valid title' });
+
     if (!authorData.email)
       return res.status(400).send({ status: false, msg: 'email required' });
+    if (email)
+      return res
+        .status(400)
+        .send({ status: false, msg: 'email already taken' });
+
     if (!authorData.password)
       return res.status(400).send({ status: false, msg: 'password required' });
+
     const savedData = await AuthorModel.create(authorData);
-    res.status(201).send({ Status: true, Msg: savedData });
+
+    res.status(201).send({ status: true, msg: savedData });
   } catch (err) {
-    res.status(500).send({ Status: 'SERVER ERROR', Msg: err.message });
+    res.status(500).send({ status: false, msg: err.message });
   }
 };
+
+//------------------------------------------------------------------------------------------//
 
 const loginAuthor = async function (req, res) {
   try {
     let userName = req.body.emailId;
-    if (!userName) return res.status(400).send({ msg: 'please enter emailId' });
+    if (!userName)
+      return res
+        .status(400)
+        .send({ status: false, msg: 'please enter emailId' });
+
     let password = req.body.password;
     if (!password)
-      return res.status(400).send({ msg: 'please enter password' });
+      return res
+        .status(400)
+        .send({ status: false, msg: 'please enter password' });
+
     let findAuthor = await AuthorModel.findOne({
       email: userName,
       password: password,
@@ -41,16 +72,18 @@ const loginAuthor = async function (req, res) {
         status: false,
         msg: 'Email and Password not valid',
       });
+
     let token = jwt.sign(
       {
         authorId: findAuthor._id.toString(),
       },
       'group-21'
     );
+
     res.setHeader('x-api-key', token);
     res.send({ status: true, token: token });
   } catch (err) {
-    res.status(500).send({ Status: 'SERVER ERROR', Msg: err.message });
+    res.status(500).send({ status: false, msg: err.message });
   }
 };
 
