@@ -49,7 +49,6 @@ const blogSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    
   },
   { timestamps: true }
 );

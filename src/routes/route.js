@@ -25,11 +25,7 @@ router.delete(
   BlogController.deleteByParams
 );
 
-router.delete(
-  '/blogs',
-  middleware.authenticate,
-  BlogController.deletedByQuery
-);
+router.delete('/blogs', middleware.authenticate, BlogController.deletedByQuery);
 
 router.post('/login', AuthorController.loginAuthor);
 

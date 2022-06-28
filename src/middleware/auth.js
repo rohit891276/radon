@@ -17,7 +17,6 @@ const authenticate = function (req, res, next) {
       return res.status(401).send({ status: false, msg: 'token is not valid' });
 
     next();
-
   } catch (err) {
     res.status(500).send({ Status: false, msg: err.message });
   }
@@ -30,13 +29,13 @@ const authorise = async function (req, res, next) {
     token = req.headers['x-api-key'];
 
     let blogId = req.params.blogId;
-    
+
     let decodedToken = jwt.verify(token, 'group-21');
-    
+
     let authorId = decodedToken.authorId;
-    
+
     let findBlog = await BlogModel.findOne({ authorId: authorId, _id: blogId });
-    
+
     if (!findBlog)
       return res.status(403).send({
         status: false,
@@ -44,7 +43,6 @@ const authorise = async function (req, res, next) {
       });
 
     next();
-    
   } catch (err) {
     res.status(500).send({ Status: false, msg: err.message });
   }
