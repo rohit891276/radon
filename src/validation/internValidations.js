@@ -23,7 +23,7 @@ const checkNumber = function (str) {
     if (typeof str == "string" && str.trim().length == 0) return 'Mobile number cannot be empty'
     if (str.startsWith("0") || str.startsWith("1") || str.startsWith("2") || str.startsWith("3") || str.startsWith("4") || str.startsWith("5")) return `Mobile number cannot start with ${str[0]}`
     if (str.length != 10) return 'Mobile number must be 10 digits'
-    if (!mobileRegex.test(str)) return "Mobile number can only contains letters";
+    if (!mobileRegex.test(str)) return "Mobile number can only contains numbers";
     return true
 }
 
@@ -48,7 +48,7 @@ exports.validationInter = async function (req, res, next) {
         if (emailValid(email) != true)
             return res.status(400).send({ status: false, mgs: emailValid(email) });
 
-        const isEmailExist = await internModel.find({ email })
+        const isEmailExist = await internModel.find({isDeleted: false, email })
         if (isEmailExist.length)
             return res.status(400).send({ status: false, mgs: "This email is already being used" });
 

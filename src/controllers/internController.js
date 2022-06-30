@@ -4,7 +4,7 @@ const CollegeModel = require("../models/collegeModel");
 exports.createIntern = async function (req, res) {
   try {
     const { name, email, mobile, collegeName } = req.body
-    const existCollege = await CollegeModel.find({ name: collegeName })
+    const existCollege = await CollegeModel.find({ name: collegeName, isDeleted: false})
     //console.log(existCollege)
     const requireId = existCollege[0]['_id'].toString()
     //console.log(existCollege[0].fullName)
