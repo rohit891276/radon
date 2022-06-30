@@ -28,7 +28,7 @@ exports.getCollegeDetails = async function (req, res) {
         let collegeId = await CollegeModel.find({ name: name }).select({ isDeleted: 0, __v: 0 })
         // console.log(collegeId)
         if (collegeId.length == 0 || collegeId == null || collegeId == undefined)
-        return res.status(404).send({ status: false, msg: "College not found" })
+        return res.status(400).send({ status: false, msg: "College not found" })
         
         const internData = collegeId[0]["_id"].toString()
         let intern = await InternModel.find({ collegeId: internData }).select({ collegeId: 0, isDeleted: 0, __v: 0 })

@@ -15,17 +15,3 @@ exports.createIntern = async function (req, res) {
   }
 
 };
-
-
-// exports.createIn = function(req, res) {
-//   try{
-//   const {name, email, mobile, collegeName} = req.body;
-//   let nameRegex = /^[A-Za-z\s]{1,}[\.]{0,1}[A-Za-z\s]{0,}$/;
-//   let mailRegex = /^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/;
-//   let mobileRegex = /^[+0]{0,2}(91)?[0-9]{10}$/;
-//   const savedData = await InternModel.create({data})
-//   res.status(201).send({status: true, msg: savedData})
-// } catch(err){
-//   res.status(500).send({status: false, msg: err.message})
-// }
-// }
