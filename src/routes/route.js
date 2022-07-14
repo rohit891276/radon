@@ -29,6 +29,4 @@ router.post('/books/:bookId/review', ReviewController.createReviews);
 router.put('/books/:bookId/review/:reviewId', ReviewController.updateReviews);
 router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteReview);
 
-// router.post('/write-aws', BookController.AWS)
-
 module.exports = router;
