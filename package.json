@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/rohit891276/Project-3-BookManagement#readme",
   "dependencies": {
+    "aws-sdk": "^2.1174.0",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",

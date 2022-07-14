@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+//const aws = require("aws-sdk");
 
 
 //===============================================[ALL MODULES ARE REQUIRED HERE]===========================================================
@@ -27,5 +28,7 @@ router.delete('/books/:bookId', Middleware.authentication, Middleware.authorisat
 router.post('/books/:bookId/review', ReviewController.createReviews);
 router.put('/books/:bookId/review/:reviewId', ReviewController.updateReviews);
 router.delete('/books/:bookId/review/:reviewId', ReviewController.deleteReview);
+
+// router.post('/write-aws', BookController.AWS)
 
 module.exports = router;

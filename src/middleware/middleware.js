@@ -2,9 +2,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require('mongoose');
 
 const BookModel = require("../models/bookModel");
-const UserModel = require("../models/userModel");
 
-const { isValidObjectId, objectValue } = require('../validators/validation.js');
 
 let authentication = function (req, res, next) {
     try {
@@ -37,9 +35,9 @@ const authorisation = async function (req, res, next) {
 
         let bookId = req.params.bookId
         let usersId = await BookModel.findOne({ _id: bookId }).select({ userId: 1, _id: 0 })
-        if (!usersId) return res.status(400).send({ status: false, msg: 'Please enter valid book ID' })
-        let newAuth = usersId.userId.valueOf()
-        if (newAuth != userLoggedIn) return res.status(403).send({ status: false, msg: 'User logged is not allowed to modify the requested users data' })
+        if (!usersId) return res.status(400).send({ status: false, message: 'Please enter valid book ID' })
+        let newAuth = usersId.userId.valueOf();
+        if (newAuth != userLoggedIn) return res.status(403).send({ status: false, message: 'User logged is not allowed to modify the requested users data' })
         next()
 
     } catch (err) {

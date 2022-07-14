@@ -13,6 +13,7 @@ const createReviews = async (req, res) => {
 
         if (!mongoose.isValidObjectId(bookId))
             return res.status(400).send({ status: false, message: "BookId is not valid" });
+
         const bookIdCheck = await BookModel.findById({ _id: bookId, isDeleted: false });
         if (bookIdCheck.isDeleted == true)
             return res.status(404).send({ status: false, message: "Book does not exist" });
@@ -57,7 +58,7 @@ const createReviews = async (req, res) => {
             reviewsData: [savedData]
         };
 
-        res.status(201).send({ status: true, message: 'Success', data: finalData });
+       return res.status(201).send({ status: true, message: 'Success', data: finalData });
 
 
     } catch (error) {
@@ -73,15 +74,15 @@ const updateReviews = async function (req, res) {
         const bookId = req.params.bookId;
         const reviewId = req.params.reviewId;
 
-        if (!isValidObjectId(bookId))
+        if (!mongoose.isValidObjectId(bookId))
             return res.status(400).send({ status: false, message: "BookId is not in correct format" });
 
-        if (!isValidObjectId(reviewId))
+        if (!mongoose.isValidObjectId(reviewId))
             return res.status(400).send({ status: false, message: "ReviewId is not in correct format" });
 
         let bookIdCheck = await BookModel.findOne({ _id: bookId, isDeleted: false });
         if (!bookIdCheck)
-            return res.status(400).send({ status: false, message: "book data is deleted" });
+            return res.status(404).send({ status: false, message: "Book data is not found" });
 
 
         let reviewIdCheck = await ReviewModel.findOne({ _id: reviewId });

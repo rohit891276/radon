@@ -1,6 +1,5 @@
 const BookModel = require('../models/bookModel.js');
 const ReviewModel = require("../models/reviewModel.js")
-const UserModel = require("../models/userModel.js");
 
 
 const { isValidObjectId, objectValue, forBody, isbnIsValid, nameRegex, titleRegex, dateFormate } = require('../validators/validation.js');
@@ -19,7 +18,7 @@ const createBooks = async (req, res) => {
         const keyOf = Object.keys(req.body);
         const receivedKey = filedAllowed.filter((x) => !keyOf.includes(x));
         if (receivedKey.length) {
-            return res.status(400).send({ status: false, msg: `${receivedKey} field is missing` });
+            return res.status(400).send({ status: false, message: `${receivedKey} field is missing` });
         }
 
         const { title, excerpt, userId, ISBN, category, subcategory, reviews, isDeleted, releasedAt } = req.body;
@@ -45,22 +44,26 @@ const createBooks = async (req, res) => {
         if (!isValidObjectId(userId))
             return res.status(400).send({ status: false, message: "Please provide valid userId" });
 
-
         if (!objectValue(userId))
             return res.status(400).send({ status: false, message: "UserId must be present it cannot remain empty" });
+
         let userLoggedIn = req.bookIdNew
         let usersId = req.body.userId
         if (userLoggedIn != usersId) return res.status(403).send({ status: false, msg: 'User logged is not allowed to modify the requested users data' })
+
         if (!objectValue(category))
             return res.status(400).send({ status: false, message: "Category cannot remains empty" });
 
-        const check_isbn = await BookModel.findOne({ ISBN: req.body.ISBN });
+        const check_isbn = await BookModel.findOne({ ISBN: ISBN });
 
         if (check_isbn)
             return res.status(400).send({ status: false, message: "ISBN is already taken please provide different ISBN number" });
 
-        if (!isbnIsValid(ISBN))
+        if (!objectValue(ISBN))
             return res.status(400).send({ status: false, message: "ISBN must be present" });
+
+        if (!isbnIsValid(ISBN))
+            return res.status(400).send({ status: false, message: "ISBN is not valid" });
 
         if (!objectValue(releasedAt))
             return res.status(400).send({ status: false, message: "ReleasedAt cannot remains empty" });
@@ -113,12 +116,12 @@ const getBookDetails = async (req, res) => {
             ];
             if (userId)
                 if (!isValidObjectId(userId))
-                    return res.status(404).send({ status: false, message: "Please provide valid userId" });
+                    return res.status(400).send({ status: false, message: "Please provide valid userId" });
 
 
             const findData = await BookModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 })
 
-            if (!findData.length) {
+            if (!findData) {
                 return res.status(404).send({ status: false, message: "No data found for books" })
             }
             let sortbook = findData.sort((a, b) => (a['title'] || "").toString().localeCompare((b['title'] || "").toString()));
@@ -151,7 +154,7 @@ const getBooksById = async function (req, res) {
         let bookIdCheck = await BookModel.findOne({ _id: bookId, isDeleted: false });
 
         if (!bookIdCheck)
-            return res.status(404).send({ status: false, message: "no book present from this BOOKID" });
+            return res.status(404).send({ status: false, message: "No book present from this BOOKID" });
 
 
         let { _id, title, excerpt, userId, category, subcategory, isDeleted, reviews, releasedAt, createdAt, updatedAt } = bookIdCheck;
@@ -203,8 +206,7 @@ const updateBook = async (req, res) => {
             if (!objectValue(releaseAt))
                 return res.status(400).send({ status: false, message: "ReleaseAt must be present" });
 
-
-            const check_isbn = await BookModel.findOne({ ISBN: req.body.ISBN });
+            const check_isbn = await BookModel.findOne({ ISBN: ISBN });
             if (check_isbn)
                 return res.status(400).send({ status: false, message: "ISBN is already taken please provide different ISBN number to update" });
 
@@ -232,7 +234,8 @@ const updateBook = async (req, res) => {
 const deleteById = async (req, res) => {
     try {
 
-        const bookId = req.params.bookId
+        const bookId = req.params.bookId;
+
         let filter = { _id: bookId, isDeleted: false }
 
         const findBook = await BookModel.findOne(filter)
@@ -248,7 +251,6 @@ const deleteById = async (req, res) => {
         res.status(500).send({ status: false, message: error.message });
     }
 }
-
 
 
 module.exports.createBooks = createBooks;
