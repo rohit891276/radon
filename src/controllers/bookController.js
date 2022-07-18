@@ -1,6 +1,6 @@
 const BookModel = require('../models/bookModel.js');
 const ReviewModel = require("../models/reviewModel.js")
-
+const { uploadFile } = require("../aws/aws.js");
 
 const { isValidObjectId, objectValue, forBody, isbnIsValid, nameRegex, titleRegex, dateFormate } = require('../validators/validation.js');
 
@@ -9,7 +9,7 @@ const { isValidObjectId, objectValue, forBody, isbnIsValid, nameRegex, titleRege
 
 const createBooks = async (req, res) => {
     try {
-
+        let files = req.files;
         const filedAllowed = ["title", "excerpt", "userId", "ISBN", "category", "subcategory", "releasedAt"];
 
         if (!forBody(req.body))
@@ -19,6 +19,11 @@ const createBooks = async (req, res) => {
         const receivedKey = filedAllowed.filter((x) => !keyOf.includes(x));
         if (receivedKey.length) {
             return res.status(400).send({ status: false, message: `${receivedKey} field is missing` });
+        }
+
+        if (files && files.length > 0) {
+            var url = await uploadFile(files[0]);
+            req.body.bookCover = url;
         }
 
         const { title, excerpt, userId, ISBN, category, subcategory, reviews, isDeleted, releasedAt } = req.body;
@@ -40,12 +45,11 @@ const createBooks = async (req, res) => {
         if (!nameRegex(excerpt))
             return res.status(400).send({ status: false, message: "Please provide valid excerpt, it should not contains any special characters and numbers" });
 
+        if (!objectValue(userId))
+            return res.status(400).send({ status: false, message: "UserId must be present it cannot remain empty" });
 
         if (!isValidObjectId(userId))
             return res.status(400).send({ status: false, message: "Please provide valid userId" });
-
-        if (!objectValue(userId))
-            return res.status(400).send({ status: false, message: "UserId must be present it cannot remain empty" });
 
         let userLoggedIn = req.bookIdNew
         let usersId = req.body.userId
@@ -105,19 +109,27 @@ const getBookDetails = async (req, res) => {
         const filter = { isdeleted: false }
         if (Object.keys(req.query).length !== 0) {
 
-            // if (req.query.subcategory) {
-            //     req.query.subcategory = { $in: req.query.subcategory.split(",") }
-            // }
-
             filter['$or'] = [
-                { userId: req.query.userId },
-                { category: req.query.category },
-                { subcategory: req.query.subcategory },
+                { userId: userId },
+                { category: category },
+                { subcategory: subcategory },
             ];
-            if (userId)
+
+            if (userId) {
                 if (!isValidObjectId(userId))
                     return res.status(400).send({ status: false, message: "Please provide valid userId" });
+                if (!objectValue(userId))
+                    return res.status(400).send({ status: false, message: "UserId must be present it cannot remain empty" });
+            }
 
+            // if (category) {
+            //     if (!objectValue(category))
+            //         return res.status(400).send({ status: false, message: "category cannot remains empty" });
+            // }
+            // if (subcategory) {
+            //     if (!objectValue(subcategory))
+            //         return res.status(400).send({ status: false, message: "subcategory cannot remains empty" });
+            // }
 
             const findData = await BookModel.find(filter).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, reviews: 1, releasedAt: 1 })
 
