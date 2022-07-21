@@ -74,9 +74,9 @@ const getUrl = async (req, res) => {
         const urlCode = req.params.urlCode;
         if (!ShortId.isValid(urlCode)) return res.status(400).send({ status: false, message: "Please enter valid urlCode" });
 
-        let cahcedUrlData = await GET_ASYNC(`${req.params.urlCode}`)
-        if (cahcedUrlData) {
-            return res.status(302).redirect(cahcedUrlData);
+        let cachedUrlData = await GET_ASYNC(`${req.params.urlCode}`)
+        if (cachedUrlData) {
+            return res.status(302).redirect(cachedUrlData);
         } else {
             let requredUrl = await UrlModel.findOne({ urlCode: urlCode });
             if (!requredUrl) return res.status(404).send({ status: false, message: "No such url present" });
