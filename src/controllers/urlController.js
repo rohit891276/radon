@@ -10,10 +10,6 @@ const isValid = function (value) {
     return true;
 };
 
-
-
-
-
 //Connect to redis
 const redisClient = redis.createClient(
     18142,
@@ -39,8 +35,6 @@ const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 
-
-
 const createUrl = async (req, res) => {
     try {
         const { longUrl } = req.body;
@@ -52,33 +46,35 @@ const createUrl = async (req, res) => {
             if (!/(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/.test(longUrl))
                 return res.status(400).send({ status: false, message: "Please enter valid url" });
 
-            const usedUrl = await UrlModel.findOne({ longUrl: longUrl });
-            if (usedUrl)
-                return res.status(200).send({ message: "This Url is already shorten", data: usedUrl.shortUrl });
 
 
-            const urlId = ShortId.generate();
-            const urlShort = baseUrl + "/" + urlId;
-            req.body.shortUrl = urlShort;
-            req.body.urlCode = urlId;
+            let cahcedUrlData = await GET_ASYNC(`${longUrl}`)
+            if (cahcedUrlData) {
+                return res.status(400).send({ status: false, message: "This Url is already shorten", data: cahcedUrlData });
+            } else {
 
-            const urlCreated = await UrlModel.create(req.body);
-            let urlDetails = {
-                longUrl,
-                shortUrl: urlCreated.shortUrl,
-                urlCode: urlCreated.urlCode
-            };
-            res.status(201).send({ status: true, data: urlDetails })
+                const urlId = ShortId.generate();
+                const urlShort = baseUrl + "/" + urlId;
+                req.body.shortUrl = urlShort;
+                req.body.urlCode = urlId;
+
+                const urlCreated = await UrlModel.create(req.body);
+                let urlDetails = {
+                    longUrl: urlCreated.longUrl,
+                    shortUrl: urlCreated.shortUrl,
+                    urlCode: urlCreated.urlCode
+                };
+                await SET_ASYNC(`${longUrl}`, (urlDetails.shortUrl));
+                res.status(201).send({ status: true, data: urlDetails })
+            }
         } else {
             return res.status(400).send({ status: false, message: "Requested body cannot remain empty please provide some data" })
         }
 
     } catch (error) {
-        res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message });
     }
 }
-
-
 
 const getUrl = async (req, res) => {
     try {
@@ -92,7 +88,7 @@ const getUrl = async (req, res) => {
             let requredUrl = await UrlModel.findOne({ urlCode: urlCode });
             if (!requredUrl) return res.status(404).send({ status: false, message: "No such url present" });
             await SET_ASYNC(`${req.params.urlCode}`, (requredUrl.longUrl));
-        
+
             return res.status(302).redirect(requredUrl.longUrl);
         }
     } catch (err) {
