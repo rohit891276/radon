@@ -1,6 +1,5 @@
 const UrlModel = require('../models/urlModel.js');
 const ShortId = require('shortid');
-//const ValidUrl = require('valid-url');
 const redis = require("redis");
 const { promisify } = require("util");
 
@@ -24,12 +23,7 @@ redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
 });
 
-
-
-//1. connect to the server
-//2. use the commands :
-
-//Connection setup for redis
+//connect to the server
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
@@ -46,11 +40,9 @@ const createUrl = async (req, res) => {
             if (!/(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/.test(longUrl))
                 return res.status(400).send({ status: false, message: "Please enter valid url" });
 
-
-
-            let cahcedUrlData = await GET_ASYNC(`${longUrl}`)
-            if (cahcedUrlData) {
-                return res.status(400).send({ status: false, message: "This Url is already shorten", data: cahcedUrlData });
+            let cachedUrlData = await GET_ASYNC(`${longUrl}`);
+            if (cachedUrlData) {
+                return res.status(200).send({ status: true, message: "This Url is already shorten", data: cachedUrlData });
             } else {
 
                 const urlId = ShortId.generate();
@@ -64,8 +56,9 @@ const createUrl = async (req, res) => {
                     shortUrl: urlCreated.shortUrl,
                     urlCode: urlCreated.urlCode
                 };
+
                 await SET_ASYNC(`${longUrl}`, (urlDetails.shortUrl));
-                res.status(201).send({ status: true, data: urlDetails })
+                res.status(201).send({ status: true, data: urlDetails });
             }
         } else {
             return res.status(400).send({ status: false, message: "Requested body cannot remain empty please provide some data" })
