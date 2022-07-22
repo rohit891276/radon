@@ -1,13 +1,10 @@
 const UrlModel = require('../models/urlModel.js');
 const ShortId = require('shortid');
+const ValidUrl = require('valid-url');
 const redis = require("redis");
 const { promisify } = require("util");
 
-const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    return true;
-};
+
 
 //Connect to redis
 const redisClient = redis.createClient(
@@ -28,6 +25,14 @@ redisClient.on("connect", async function () {
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
+const isValid = function (value) {
+    if (typeof value == "undefined" || value == null) return false;
+    if (typeof value == "string" && value.trim().length == 0) return false;
+    if (typeof value != "string") return false;
+    return true;
+};
+
+
 
 const createUrl = async (req, res) => {
     try {
@@ -36,9 +41,9 @@ const createUrl = async (req, res) => {
         if (Object.keys(req.body).length != 0) {
 
             if (!isValid(longUrl))
-                return res.status(400).send({ status: false, message: "Please enter longUrl" });
-            if (!/(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/.test(longUrl))
-                return res.status(400).send({ status: false, message: "Please enter valid url" });
+                return res.status(400).send({ status: false, message: "Please enter longUrl and it must be a typeof string only" });
+
+            if (!ValidUrl.isUri(longUrl)) return res.status(400).send({ status: false, message: "Invalid Url" });
 
             let cachedUrlData = await GET_ASYNC(`${longUrl}`);
             if (cachedUrlData) {
@@ -76,13 +81,13 @@ const getUrl = async (req, res) => {
 
         let cachedUrlData = await GET_ASYNC(`${req.params.urlCode}`)
         if (cachedUrlData) {
-            return res.status(302).redirect(cachedUrlData);
+            return res.redirect(cachedUrlData);
         } else {
             let requredUrl = await UrlModel.findOne({ urlCode: urlCode });
             if (!requredUrl) return res.status(404).send({ status: false, message: "No such url present" });
             await SET_ASYNC(`${req.params.urlCode}`, (requredUrl.longUrl));
 
-            return res.status(302).redirect(requredUrl.longUrl);
+            return res.redirect(requredUrl.longUrl);
         }
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
